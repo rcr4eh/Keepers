@@ -29,6 +29,7 @@ public class Map : MonoBehaviour {
 	Vector2 origin;
     public Text playerInfo;
     public Image unitImage;
+	public ClickUnit target;
 
     void Start() {
         //Create map tiles
@@ -110,7 +111,7 @@ public class Map : MonoBehaviour {
         selectedPlayer = Cu.GetComponent<ClickUnit>();
         selectedPlayer.map = this;
         selectedUnit = Cu;
-        playerInfo.text = "             " + selectedPlayer.name + "\n\nPlayer Selected: \n    " + selectedPlayer.tag + "\nAttack Damage: \n    " + selectedPlayer.damage + "\nHealth: \n    " + selectedPlayer.health + "\nUnit Morale: \n    " + selectedPlayer.morale + "\nMove: \n     " + selectedPlayer.maxMoveDistance;
+		playerInfo.text = "             " + selectedPlayer.name + "\n\nPlayer Selected: \n    " + selectedPlayer.tag + "\nAttack Damage: \n    " + selectedPlayer.damage + "\nHealth: \n    " + selectedPlayer.health + "/" + selectedPlayer.maxHealth + "\nUnit Morale: \n    " + selectedPlayer.morale + "\nMove: \n     " + selectedPlayer.maxMoveDistance;
 
         unitImage.enabled = true;
         unitImage.material = ((MeshRenderer)selectedUnit.GetComponent<MeshRenderer>()).material;
@@ -318,6 +319,7 @@ public class Map : MonoBehaviour {
                     attackedPlayer = player1Units[i].GetComponent<ClickUnit>();
                     attackedPlayer.health -= selectedPlayer.damage;
                     selectedPlayer.movesLeft = -1;
+
                 }
             }
         }
@@ -352,4 +354,26 @@ public class Map : MonoBehaviour {
             WinText.text = "Player " + player + " WINS!!!";
         }
     }
+
+	public void displayActions(ClickUnit target)
+	{
+		this.target = target;
+		double yOffset = -1;
+
+		foreach(GameObject ga in selectedPlayer.abilities)
+		{
+			Action doSomething = ga.GetComponent<Action> ();
+
+			ga.transform.position = new Vector3(target.transform.position.x+.5f, (float)(target.transform.position.y + yOffset), target.transform.position.z);
+			yOffset -= 1;
+
+			if (doSomething.meetsRequirements (selectedPlayer, target)) {
+				enabled = true;
+				ga.GetComponent<Image> ().color = new Color (200 / 255f, 200 / 255f, 200 / 255f);
+			} else {
+				enabled = false;
+				ga.GetComponent<Image> ().color = new Color (100 / 255f, 100 / 255f, 100 / 255f);
+			}
+		}
+	}
 }

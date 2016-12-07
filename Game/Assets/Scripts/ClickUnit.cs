@@ -8,6 +8,7 @@ public class ClickUnit : MonoBehaviour
     public GameObject player;
     public Map map;
     public int health; 
+	public int maxHealth;
     public int damage;
     public int morale;
 	public double maxMoveDistance;
@@ -21,6 +22,7 @@ public class ClickUnit : MonoBehaviour
 	public static string dirt;
 	public static string water;
     public string name;
+	public GameObject[] abilities;
 
 	Vector2 position;
 
@@ -60,7 +62,18 @@ public class ClickUnit : MonoBehaviour
 				}*/
 			}
 		}
+		HealthDisplay bar = GameObject.FindGameObjectWithTag("health bar").GetComponents<HealthDisplay>()[0];
+		bar.change (this);
+		Debug.Log (bar);
     }
+
+	void OnMouseOver()
+	{
+		if (Input.GetMouseButtonUp (1)) 
+		{
+			map.displayActions (this);
+		}
+	}
 
 	public List<PotentialMove> getPossibleMoves()
 	{
