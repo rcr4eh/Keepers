@@ -29,6 +29,7 @@ public class ClickTile : MonoBehaviour {
             {
                 map.attackObject(tileX, tileY);
             }
+			map.cleanupActions ();
         }
     }
     public int getX()

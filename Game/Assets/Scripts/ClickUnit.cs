@@ -10,6 +10,7 @@ public class ClickUnit : MonoBehaviour
     public int health; 
 	public int maxHealth;
     public int damage;
+	public int heal;
     public int morale;
 	public double maxMoveDistance;
 	public double movesLeft;
@@ -45,6 +46,8 @@ public class ClickUnit : MonoBehaviour
 
     void OnMouseUp() 
 	{
+		map.backdrop.GetComponent<MeshRenderer> ().enabled = true;
+		map.cleanupActions ();
 		position = map.GetPositionFromTransform (this.transform);
         map.ChangeUnit(player);
 

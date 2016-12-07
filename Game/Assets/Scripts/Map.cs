@@ -30,7 +30,7 @@ public class Map : MonoBehaviour {
     public Text playerInfo;
     public Image unitImage;
 	public ClickUnit target;
-
+	public GameObject backdrop;
     void Start() {
         //Create map tiles
         tiles = new int[sizeX, sizeY];
@@ -111,6 +111,9 @@ public class Map : MonoBehaviour {
         selectedPlayer = Cu.GetComponent<ClickUnit>();
         selectedPlayer.map = this;
         selectedUnit = Cu;
+		if (selectedPlayer.health < 0) {
+			selectedPlayer.health = 0;
+		}
 		playerInfo.text = "             " + selectedPlayer.name + "\n\nPlayer Selected: \n    " + selectedPlayer.tag + "\nAttack Damage: \n    " + selectedPlayer.damage + "\nHealth: \n    " + selectedPlayer.health + "/" + selectedPlayer.maxHealth + "\nUnit Morale: \n    " + selectedPlayer.morale + "\nMove: \n     " + selectedPlayer.maxMoveDistance;
 
         unitImage.enabled = true;
@@ -127,6 +130,7 @@ public class Map : MonoBehaviour {
             DestroyTiles();
             CreateTile();
         }
+		(GameObject.FindGameObjectWithTag ("health bar")).GetComponent<HealthDisplay>().change(selectedPlayer);
     }
     public double Distance(int x1, int y1, int x2, int y2) {
         double dis = 0;
@@ -165,18 +169,7 @@ public class Map : MonoBehaviour {
 							ct.map = this;
 							ct.movesTo = p.moves;
 						}
-					}
-                    //Creating Attack Tiles
-						if (selectedPlayer.movesLeft != -1 && Distance ((int)selectedUnit.transform.position.x, (int)selectedUnit.transform.position.y, x, y) <= selectedPlayer.attackRange && Distance ((int)selectedUnit.transform.position.x, (int)selectedUnit.transform.position.y, x, y) > 0 && checkEnemy (clickTiles [x, y])) {
-							//Debug.Log("X =" + x + "Y=" + y);
-							GameObject go = (GameObject)Instantiate (TileAttack, new Vector3 (x, y, (float)-1.5), Quaternion.identity);
-							ClickTile ct = go.GetComponent<ClickTile> ();
-							ct.tileX = x;
-							ct.tileY = y;
-							ct.map = this;
-
-						}
-                }
+					}                }
             }
         }
     /* for (int x = 0; x < moveTiles.Length; x++) {
@@ -352,27 +345,47 @@ public class Map : MonoBehaviour {
         {
             WinText.color = new Color(WinText.color.r, WinText.color.g, WinText.color.b, 255);
             WinText.text = "Player " + player + " WINS!!!";
+			GameObject.FindGameObjectWithTag ("speaker").GetComponent<AudioSource> ().enabled = false;
+			GameObject.FindGameObjectWithTag ("WinSpeaker").GetComponent<AudioSource> ().enabled = true;
         }
     }
 
 	public void displayActions(ClickUnit target)
 	{
+
 		this.target = target;
 		double yOffset = -1;
 
 		foreach(GameObject ga in selectedPlayer.abilities)
 		{
-			Action doSomething = ga.GetComponent<Action> ();
+			if (ga != null)
+			{
+				Action doSomething = ga.GetComponent<Action> ();
 
-			ga.transform.position = new Vector3(target.transform.position.x+.5f, (float)(target.transform.position.y + yOffset), target.transform.position.z);
-			yOffset -= 1;
+				ga.transform.position = new Vector3 (target.transform.position.x + .5f, (float)(target.transform.position.y + yOffset), target.transform.position.z - 5);
+				yOffset -= 1;
 
-			if (doSomething.meetsRequirements (selectedPlayer, target)) {
-				enabled = true;
-				ga.GetComponent<Image> ().color = new Color (200 / 255f, 200 / 255f, 200 / 255f);
-			} else {
-				enabled = false;
-				ga.GetComponent<Image> ().color = new Color (100 / 255f, 100 / 255f, 100 / 255f);
+				if (doSomething.meetsRequirements (selectedPlayer, target)) {
+					Button b = ga.GetComponent<Button> ();
+					b.interactable = true;
+				} else {
+					Button b = ga.GetComponent<Button> ();
+					b.interactable = false;
+				}
+			}
+		}
+	}
+
+	public void cleanupActions()
+	{
+		if (selectedPlayer != null) 
+		{
+			foreach (GameObject ga in selectedPlayer.abilities)
+			{
+				if (ga != null)
+				{
+					ga.transform.position = new Vector3 (0, 0, 0);
+				}
 			}
 		}
 	}

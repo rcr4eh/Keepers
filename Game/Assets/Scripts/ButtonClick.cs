@@ -8,6 +8,7 @@ public class ButtonClick : MonoBehaviour
 
 	public void Click ()
 	{
+		//map.cleanupActions ();
 		if (map.firstPlayerTurn) {
 			gameObject.GetComponent<Image> ().color = new Color (255 / 255f, 140 / 255f, 0 / 255f);
 			map.firstPlayerTurn = false;
